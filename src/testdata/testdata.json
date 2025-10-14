@@ -1,0 +1,86 @@
+{
+  "TC03": {
+    "login": {
+      "url": "https://app.browntape.com/users/login",
+      "username": "inttest@browntape.com",
+      "password": "browntape"
+    },
+    "product": {
+      "name": "White pant3",
+      "topLevelCategory": "Clothing, Shoes & Accessories",
+      "subCategory": "Kids' Clothing, Shoes & Accs"
+    },
+    "dimensions": {
+      "warehouse": "Delhi Warehouse",
+      "mrp": "1000.0",
+      "unitCost": "800.0",
+      "length": "10.0",
+      "breadth": "10.0",
+      "height": "10.0",
+      "weight": "500.0",
+      "color": "Blue",
+      "size": "S"
+    },
+    "brand": {
+      "name": "brand14",
+      "shortCode": "br"
+    },
+    "expectedMessages": {
+      "productSaved": "The product has been saved",
+      "skuUpdated": "The SKU information has been updated",
+      "brandAdded": "The Brand has been added"
+    },
+    "expectedUrls": {
+      "productCreate": "/products/create",
+      "skuAddStock": "/Skus/add_stock/",
+      "skuIndex": "/skus/index_new",
+      "brandsIndex": "/brands/index"
+    }
+  },
+  "TC_PRODUCT_FULL_VALIDATION": {
+    "login": {
+      "url": "https://app.browntape.com/users/login",
+      "username": "inttest@browntape.com",
+      "password": "browntape",
+      "expectedTitle": "Browntape.com | Users | Login"
+    },
+    "product": {
+      "name": "White 2",
+      "topLevelCategory": "Clothing, Shoes & Accessories",
+      "subCategory": "Kids' Clothing, Shoes & Accs"
+    },
+    "dimensions": {
+      "warehouse": "Delhi Warehouse",
+      "mrp": "1000.0",
+      "unitCost": "800.0",
+      "length": "10.0",
+      "breadth": "10.0",
+      "height": "10.0",
+      "weight": "500.0",
+      "color": "Blue",
+      "size": "S"
+    },
+    "expectedTitles": {
+      "login": "Browntape.com | Users | Login",
+      "productCreate": "Browntape.com | Products | Create",
+      "addStock": "Browntape.com | Skus | AddStock",
+      "inventory": "Browntape.com | Skus | IndexNew",
+      "productView": "Browntape.com | Skus | View"
+    },
+    "expectedUrls": {
+      "productCreate": "/products/create",
+      "skuAddStock": "/Skus/add_stock/",
+      "skuIndex": "/skus/index_new",
+      "productView": "/skus/view/"
+    },
+    "expectedMessages": {
+      "productSaved": "The product has been saved",
+      "skuUpdated": "The SKU information has been updated"
+    },
+    "validation": {
+      "searchResultText": "1 - 1 of 1",
+      "skuCodePattern": "^[A-Z0-9]+$",
+      "dashboardLinks": ["Dashboard", "Inventory"]
+    }
+  }
+}
