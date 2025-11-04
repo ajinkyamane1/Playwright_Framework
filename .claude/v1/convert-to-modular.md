@@ -4,7 +4,7 @@ You are an expert Test Automation Architect. Your mission is to implement the co
 
 ---
 
-## OBJECTIVE
+## 🎯 OBJECTIVE
 
 This is **PHASE 2** of the flat-to-modular conversion process:
 1. **Implement** the conversion plan from Phase 1
@@ -13,7 +13,7 @@ This is **PHASE 2** of the flat-to-modular conversion process:
 
 ---
 
-## INPUT REQUIRED
+## 📥 INPUT REQUIRED
 
 From Phase 1 (analyze-and-plan):
 - **Conversion Plan Document**
@@ -22,104 +22,19 @@ From Phase 1 (analyze-and-plan):
 
 ---
 
-## CRITICAL RULES
+## ⚠️ CRITICAL RULES
 
-1. **Follow the conversion plan EXACTLY**
-2. **NO code duplication** - Reuse existing components as planned
-3. **ALL methods MUST have JSDoc comments**
-4. **NO hardcoded values** - Use parameters and test data
-5. **Follow existing framework patterns**
-6. **CRITICAL:** Verify all locators against the flat test script during integration
-
----
-
-## TEST DATA CLASSIFICATION
-
-Before implementation, understand the three types of test data:
-
-### 1. Dynamic Test Data
-**Purpose:** Generate unique values for each test execution to maintain idempotency.
-
-**Examples:**
-- Product names with timestamps
-- Email addresses with random strings
-- Order numbers
-- SKU codes
-
-**Implementation:**
-```typescript
-// Use random/timestamp functions
-const productName = `Product_${Date.now()}`;
-const email = `user_${Math.random().toString(36).substring(7)}@example.com`;
-```
-
-### 2. Hardcoded Test Data
-**Purpose:** Static values that can be passed directly from test data JSON.
-
-**Examples:**
-- Product categories
-- User roles
-- Configuration values
-- Predefined lists
-
-**Implementation:**
-```json
-{
-  "TC01": {
-    "product": {
-      "category": "Clothing, Shoes & Accessories",
-      "warehouse": "Warehouse1"
-    }
-  }
-}
-```
-
-### 3. Dynamic Locator Data
-**Purpose:** Locators that depend on runtime data to identify elements.
-
-**Examples:**
-- Selecting a specific row in a table using product name
-- Clicking a link based on dynamic text
-- Finding elements with data attributes
-
-**Implementation:**
-```typescript
-// Parameterized locator using test data
-async selectProductByName(productName: string): Promise<void> {
-  await this.page.click(`tr:has-text("${productName}") >> button[aria-label="Edit"]`);
-}
-```
-
-**IMPORTANT:** Ask user to confirm test data values before implementation if any values are unclear or missing from the flat test.
+1. ✅ **Follow the conversion plan EXACTLY**
+2. ✅ **NO code duplication** - Reuse existing components as planned
+3. ✅ **ALL methods MUST have JSDoc comments**
+4. ✅ **NO hardcoded values** - Use parameters and test data
+5. ✅ **Follow existing framework patterns**
 
 ---
 
-## IMPLEMENTATION PROCESS
+## 🔄 IMPLEMENTATION PROCESS
 
-### STEP 1: VERIFY LOCATORS FROM FLAT TEST
-
-**CRITICAL:** Before creating page objects, double-check all locators against the flat test script.
-
-**Actions:**
-1. Open the flat test file side-by-side with your work
-2. For EACH locator, verify:
-   - Exact selector syntax
-   - Special characters (spaces, symbols, case)
-   - Locator strategy (text=, role=, css, xpath)
-   - Dynamic parts that need parameterization
-
-**Example Verification:**
-```typescript
-// Flat Test (GROUND TRUTH):
-await page.click('text=+Add a Product');  // Note the + sign
-
-// Page Object (MUST MATCH EXACTLY):
-static readonly ADD_PRODUCT_LINK = 'text=+Add a Product';  // Include + sign
-```
-
----
-
-### STEP 2: CREATE/UPDATE PAGE OBJECTS (LOCATORS)
+### STEP 1: CREATE/UPDATE PAGE OBJECTS (LOCATORS)
 
 **Location:** `/Framework/src/pageobjects/[PageName].locators.ts`
 
@@ -151,15 +66,15 @@ export class [PageName]Locators {
 ```
 
 **Rules:**
-- UPPER_SNAKE_CASE naming
-- Descriptive names
-- Group by sections with comments
-- **CRITICAL:** Use exact selectors from flat test (don't modify working locators)
-- **NEVER** include logic, actions, or test data in locator files
+- ✅ UPPER_SNAKE_CASE naming
+- ✅ Descriptive names
+- ✅ Group by sections with comments
+- ✅ Use exact selectors from flat test (don't modify working locators)
+- ❌ NO logic, NO actions, NO test data
 
 ---
 
-### STEP 3: CREATE/UPDATE PAGE CLASSES (METHODS)
+### STEP 2: CREATE/UPDATE PAGE CLASSES (METHODS)
 
 **Location:** `/Framework/src/pages/[PageName].ts`
 
@@ -200,39 +115,19 @@ export class [PageName] {
 ```
 
 **Critical Rules:**
-- **EVERY method MUST have JSDoc comment** (mandatory!)
-- Import locators from pageobjects (never inline)
-- Use intent-driven method names (what + why)
-- Accept test data as parameters (no hardcoding)
-- Use exact waits from flat test (waitForLoadState, waitForSelector, etc.)
-- Handle conditional logic (if visible, then click)
-- Keep methods focused (less than 20 lines ideally)
-- **NEVER** use inline locators
-- **NEVER** hardcode test data
-- **GROUP RELATED ACTIONS:** Combine related form fields into single methods (e.g., login with email AND password together, not separate methods)
-
-**Example - Login Method (CORRECT APPROACH):**
-```typescript
-/**
- * Performs login with email and password credentials
- * Combines both input actions for better maintainability
- * @param email - User email address
- * @param password - User password
- * @returns Promise that resolves when login is complete
- */
-async loginWithCredentials(email: string, password: string): Promise<void> {
-  await this.page.fill(LoginPageLocators.EMAIL_INPUT, email);
-  await this.page.fill(LoginPageLocators.PASSWORD_INPUT, password);
-  await this.page.click(LoginPageLocators.SIGN_IN_BUTTON);
-  await this.page.waitForLoadState('networkidle');
-}
-```
-
-**AVOID:** Creating separate methods like `enterUsername()` and `enterPassword()`. Instead, group them into a single cohesive action method.
+- ✅ **EVERY method MUST have JSDoc comment** (mandatory!)
+- ✅ Import locators from pageobjects (never inline)
+- ✅ Use intent-driven method names (what + why)
+- ✅ Accept test data as parameters (no hardcoding)
+- ✅ Use exact waits from flat test (waitForLoadState, waitForSelector, etc.)
+- ✅ Handle conditional logic (if visible, then click)
+- ✅ Keep methods focused (< 20 lines ideally)
+- ❌ NO inline locators
+- ❌ NO hardcoded test data
 
 ---
 
-### STEP 4: UPDATE TEST DATA
+### STEP 3: UPDATE TEST DATA
 
 **Location:** `/Framework/src/testdata/testdata.json`
 
@@ -264,16 +159,15 @@ async loginWithCredentials(email: string, password: string): Promise<void> {
 ```
 
 **Rules:**
-- Use TestCaseID as primary key
-- Include description field
-- Structure data logically
-- Use exact values from flat test
-- **IMPORTANT:** Confirm unclear test data values with the user before finalizing
-- **NEVER** store credentials if using environment variables
+- ✅ Use TestCaseID as primary key
+- ✅ Include description field
+- ✅ Structure data logically
+- ✅ Use exact values from flat test
+- ❌ NO credentials if using environment variables
 
 ---
 
-### STEP 5: CREATE MODULAR TEST FILE
+### STEP 4: CREATE MODULAR TEST FILE
 
 **Location:** `/Framework/src/tests/tc[id]-[description].spec.ts`
 
@@ -310,18 +204,18 @@ test.describe('[TestCaseID]: [Description]', () => {
 ```
 
 **Critical Rules:**
-- Use test.step() for each logical step
-- Call ONLY page object methods (no direct page interactions)
-- Get ALL data using getTestData(TestCaseID)
-- Use environment variables for credentials
-- Test file should be MINIMAL (just flow and assertions)
-- **NEVER** use inline locators in test files
-- **NEVER** hardcode values in test files
-- **NEVER** include business logic in test files
+- ✅ Use test.step() for each logical step
+- ✅ Call ONLY page object methods (no direct page interactions)
+- ✅ Get ALL data using getTestData(TestCaseID)
+- ✅ Use environment variables for credentials
+- ✅ Test file should be MINIMAL (just flow and assertions)
+- ❌ NO inline locators
+- ❌ NO hardcoded values
+- ❌ NO business logic
 
 ---
 
-### STEP 6: CREATE UTILITIES (IF NEEDED)
+### STEP 5: CREATE UTILITIES (IF NEEDED)
 
 **Only if new utilities are needed and don't exist:**
 
@@ -350,7 +244,7 @@ export function utilityFunction(param: string): any {
 
 ---
 
-### STEP 7: HANDLE CREDENTIALS
+### STEP 6: HANDLE CREDENTIALS
 
 **Create or update `.env` file:**
 
@@ -379,22 +273,22 @@ process.env.BASE_URL
 
 ---
 
-## DELIVERABLES
+## 📤 DELIVERABLES
 
 After implementation, provide:
 
 ### 1. Created/Updated Files List
 ```
-CREATED:
+✅ Created:
 - Framework/src/pageobjects/ProductPage.locators.ts
 - Framework/src/pages/ProductPage.ts
 - Framework/src/tests/tc01-product-management.spec.ts
 
-UPDATED:
+✅ Updated:
 - Framework/src/testdata/testdata.json (added TC01)
 - Framework/src/pageobjects/LoginPage.locators.ts (added 2 new locators)
 
-REUSED:
+✅ Reused:
 - Framework/src/pages/LoginPage.ts (loginWithCredentials, verifyDashboardVisible)
 - Framework/src/utils/testDataUtil.ts (getTestData)
 ```
@@ -419,19 +313,19 @@ Test File:
 
 ### 3. Code Quality Confirmation
 ```
-- Zero code duplication
-- 100% JSDoc coverage on methods
-- All locators in pageobjects folder
-- No hardcoded values in code
-- Credentials use environment variables
-- Follows framework naming conventions
-- Proper separation of concerns
-- All async operations use await
+✅ Zero code duplication
+✅ 100% JSDoc coverage on methods
+✅ All locators in pageobjects folder
+✅ No hardcoded values in code
+✅ Credentials use environment variables
+✅ Follows framework naming conventions
+✅ Proper separation of concerns
+✅ All async operations use await
 ```
 
 ---
 
-## COMPLETION CHECKLIST
+## ✅ COMPLETION CHECKLIST
 
 Before submitting, verify:
 
@@ -451,7 +345,7 @@ Before submitting, verify:
 
 ---
 
-## NEXT STEP
+## 🎯 NEXT STEP
 
 Once implementation is complete:
 - Use `@run-and-debug.md` command to test and debug the converted code
@@ -459,5 +353,5 @@ Once implementation is complete:
 
 ---
 
-**Now implement the conversion following the plan and best practices!**
+**Now implement the conversion following the plan and best practices!** 🚀
 

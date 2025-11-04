@@ -4,7 +4,7 @@ You are an expert Test Automation Architect. Your mission is to analyze a flat t
 
 ---
 
-## OBJECTIVE
+## 🎯 OBJECTIVE
 
 This is **PHASE 1** of the flat-to-modular conversion process:
 1. **Understand** the user's flat test case
@@ -13,16 +13,14 @@ This is **PHASE 1** of the flat-to-modular conversion process:
 
 ---
 
-## INPUT REQUIRED
+## 📥 INPUT REQUIRED
 
 User will provide:
 - **Flat Test File:** e.g., `@TC_01_browntape-product-test.spec.ts`
 
-**IMPORTANT:** If any test data values are unclear or missing from the flat test, ask the user to confirm before finalizing the conversion plan.
-
 ---
 
-## ANALYSIS PROCESS
+## 🔄 ANALYSIS PROCESS
 
 ### STEP 1: READ AND UNDERSTAND FLAT TEST
 
@@ -68,7 +66,8 @@ User will provide:
 **Run the framework analyzer:**
 
 ```bash
-python3 scripts/analyze_framework.py
+cd Framework/src
+python3 analyze_framework.py
 ```
 
 **Document existing components:**
@@ -155,10 +154,8 @@ InventoryPage Locators:
 ```
 
 **Categorize each locator:**
-- NEW locator (needs to be added)
-- EXISTS already (reuse from existing page object)
-
-**CRITICAL:** Verify each locator against the flat test to ensure accuracy during this mapping phase.
+- 🆕 NEW locator (needs to be added)
+- ✅ EXISTS already (reuse from existing page object)
 
 ---
 
@@ -190,15 +187,9 @@ ProductPage Methods:
 ```
 
 **For each method, note:**
-- NEW method (needs to be created)
-- EXISTS (reuse from existing page class)
-- SIMILAR EXISTS (can be extended/parameterized)
-
-**IMPORTANT PATTERN:** Group related form fields into single methods. For example:
-- **CORRECT:** `loginWithCredentials(email, password)` - combines email AND password in one method
-- **AVOID:** Separate methods like `enterEmail()` and `enterPassword()`
-
-This applies to all related form inputs that are typically filled together.
+- 🆕 NEW method (needs to be created)
+- ✅ EXISTS (reuse from existing page class)
+- 🔄 SIMILAR EXISTS (can be extended/parameterized)
 
 ---
 
@@ -273,7 +264,7 @@ test.describe('TC01: Product Management', () => {
 
 ---
 
-## OUTPUT: CONVERSION PLAN DOCUMENT
+## 📤 OUTPUT: CONVERSION PLAN DOCUMENT
 
 **Provide a comprehensive plan with following sections:**
 
@@ -287,16 +278,16 @@ Pages Involved: LoginPage, ProductPage, InventoryPage
 
 ### 2. Existing Components to Reuse
 ```
-LoginPage.locators.ts - EXISTS
-LoginPage.ts - EXISTS
+✅ LoginPage.locators.ts - EXISTS
+✅ LoginPage.ts - EXISTS
   - loginWithCredentials() - REUSE
   - verifyDashboardVisible() - REUSE
   - closeNotificationIfVisible() - REUSE
 
-ProductPage.locators.ts - NEEDS CREATION
-ProductPage.ts - NEEDS CREATION
+❌ ProductPage.locators.ts - NEEDS CREATION
+❌ ProductPage.ts - NEEDS CREATION
 
-testDataUtil.ts - EXISTS
+✅ testDataUtil.ts - EXISTS
   - getTestData() - REUSE
 ```
 
@@ -354,18 +345,18 @@ Login → Navigate → Fill Form → Create Product → Search → Verify
 
 ### 8. Recommendation
 ```
-READY FOR CONVERSION
+✅ READY FOR CONVERSION
 Use @convert-to-modular.md command to proceed with implementation
 
 OR
 
-NEEDS CLARIFICATION
-[List any questions or unclear aspects - particularly test data values that need user confirmation]
+⚠️ NEEDS CLARIFICATION
+[List any questions or unclear aspects]
 ```
 
 ---
 
-## COMPLETION CHECKLIST
+## ✅ COMPLETION CHECKLIST
 
 Before submitting the plan, verify:
 
@@ -382,7 +373,7 @@ Before submitting the plan, verify:
 
 ---
 
-## NEXT STEP
+## 🎯 NEXT STEP
 
 Once plan is approved:
 - Use `@convert-to-modular.md` command to implement the conversion
@@ -390,5 +381,5 @@ Once plan is approved:
 
 ---
 
-**Now analyze the test case and create a comprehensive conversion plan!**
+**Now analyze the test case and create a comprehensive conversion plan!** 📋
 

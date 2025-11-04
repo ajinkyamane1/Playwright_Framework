@@ -4,7 +4,7 @@ You are an expert Test Automation Architect. Your mission is to run the converte
 
 ---
 
-## OBJECTIVE
+## 🎯 OBJECTIVE
 
 This is **PHASE 3** of the flat-to-modular conversion process:
 1. **Run** the converted modular test
@@ -15,28 +15,28 @@ This is **PHASE 3** of the flat-to-modular conversion process:
 
 ---
 
-## CRITICAL RULE: FLAT TEST IS GROUND TRUTH
+## ⚠️ CRITICAL RULE: FLAT TEST IS GROUND TRUTH
 
 **The flat test script contains the CORRECT:**
-- Exact locators that work
-- Proper wait strategies
-- Correct test flow sequence
-- Valid test data values
-- Working assertions
-- Timing and synchronization
+- ✅ Exact locators that work
+- ✅ Proper wait strategies
+- ✅ Correct test flow sequence
+- ✅ Valid test data values
+- ✅ Working assertions
+- ✅ Timing and synchronization
 
 **When debugging, ALWAYS reference the flat test!**
 
 ---
 
-## INPUT REQUIRED
+## 📥 INPUT REQUIRED
 
 - **Modular Test File:** Path to converted test (e.g., `src/tests/tc01-product-management.spec.ts`)
 - **Flat Test File:** Path to original flat test (ground truth)
 
 ---
 
-## RUN AND DEBUG PROCESS
+## 🔄 RUN AND DEBUG PROCESS
 
 ### STEP 1: RUN THE MODULAR TEST
 
@@ -68,20 +68,20 @@ npx playwright test src/tests/tc01-product-management.spec.ts --ui
 
 **Possible Outcomes:**
 
-#### Outcome 1: TEST PASSES
+#### ✅ Outcome 1: TEST PASSES
 ```
-All steps executed successfully
-All assertions passed
-No errors
+✅ All steps executed successfully
+✅ All assertions passed
+✅ No errors
 
 ACTION: Proceed to STEP 7 (Final Verification)
 ```
 
-#### Outcome 2: TEST FAILS
+#### ❌ Outcome 2: TEST FAILS
 ```
-Test failed with errors
-Some steps didn't execute
-Assertions failed
+❌ Test failed with errors
+❌ Some steps didn't execute
+❌ Assertions failed
 
 ACTION: Proceed to STEP 3 (Identify Issues)
 ```
@@ -176,7 +176,7 @@ export class ProductPage { ... }
 
 #### STEP 4B: Fix Locator Issues
 
-**CRITICAL: Reference the flat test for EXACT locators!**
+**⚠️ CRITICAL: Reference the flat test for EXACT locators!**
 
 **Actions:**
 1. Open the flat test file
@@ -246,7 +246,7 @@ async fillProductBasicInfo(name: string, category: string, subcategory: string):
 
 #### STEP 4D: Fix Timing/Synchronization Issues
 
-**CRITICAL: Copy EXACT wait strategies from flat test!**
+**⚠️ CRITICAL: Copy EXACT wait strategies from flat test!**
 
 **Actions:**
 1. Open flat test and find where waits are used
@@ -416,10 +416,10 @@ px playwright test src/tests/tc01-*.spec.ts --headed
 ```
 
 **Verify:**
-- Same actions performed
-- Same elements interacted with
-- Same assertions checked
-- Same end result
+- ✅ Same actions performed
+- ✅ Same elements interacted with
+- ✅ Same assertions checked
+- ✅ Same end result
 
 #### 2. Verify Code Quality
 ```bash
@@ -466,26 +466,26 @@ grep "static readonly" Framework/src/pageobjects/*.locators.ts
    - Reference: testdata.json structure
 
 ### Fixes Applied:
-- ProductPage.locators.ts - Fixed ADD_PRODUCT_LINK selector
-- LoginPage.ts - Added waitForLoadState after login
-- tc01-product-management.spec.ts - Fixed test data access path
+✅ ProductPage.locators.ts - Fixed ADD_PRODUCT_LINK selector
+✅ LoginPage.ts - Added waitForLoadState after login
+✅ tc01-product-management.spec.ts - Fixed test data access path
 
 ### Test Result:
-- All tests passed
-- All assertions passed
-- Behavior matches flat test exactly
+✅ All tests passed
+✅ All assertions passed
+✅ Behavior matches flat test exactly
 
 ### Test Execution:
 ```bash
 px playwright test src/tests/tc01-product-management.spec.ts --headed
 ```
 
-**Result:** PASSED (all steps executed successfully)
+**Result:** ✅ PASSED (all steps executed successfully)
 ```
 
 ---
 
-## SUCCESS CRITERIA
+## ✅ SUCCESS CRITERIA
 
 Test is ready when:
 
@@ -500,7 +500,7 @@ Test is ready when:
 
 ---
 
-## DEBUGGING COMMANDS REFERENCE
+## 🔍 DEBUGGING COMMANDS REFERENCE
 
 ```bash
 # Run in headed mode (see browser)
@@ -530,7 +530,7 @@ diff -y FlatTestScripts/TC_01_*.spec.ts Framework/src/tests/tc01-*.spec.ts
 
 ---
 
-## DEBUGGING TIPS
+## 💡 DEBUGGING TIPS
 
 1. **Always run in headed mode first** - See what's happening visually
 2. **Check the browser console** - May show JavaScript errors
@@ -545,30 +545,30 @@ diff -y FlatTestScripts/TC_01_*.spec.ts Framework/src/tests/tc01-*.spec.ts
 
 ---
 
-## COMMON DEBUGGING MISTAKES
+## ⚠️ COMMON DEBUGGING MISTAKES
 
-1. **Modifying flat test** - Never change the ground truth
-2. **Guessing locators** - Always use exact selector from flat test
-3. **Skipping waits** - Copy all waits from flat test
-4. **Changing test flow** - Follow exact sequence from flat test
-5. **Ignoring error messages** - Read them carefully
-6. **Testing in headless mode** - Always use headed mode for debugging
-7. **Fixing multiple issues at once** - Fix one, test, then fix next
-8. **Not comparing with flat test** - Always reference ground truth
+1. ❌ **Modifying flat test** - Never change the ground truth
+2. ❌ **Guessing locators** - Always use exact selector from flat test
+3. ❌ **Skipping waits** - Copy all waits from flat test
+4. ❌ **Changing test flow** - Follow exact sequence from flat test
+5. ❌ **Ignoring error messages** - Read them carefully
+6. ❌ **Testing in headless mode** - Always use headed mode for debugging
+7. ❌ **Fixing multiple issues at once** - Fix one, test, then fix next
+8. ❌ **Not comparing with flat test** - Always reference ground truth
 
 ---
 
-## NEXT STEPS
+## 🎯 NEXT STEPS
 
 Once test passes:
-- **Test is production-ready**
-- **Can move to next test case conversion**
-- **Update framework analyzer if needed**
-- **Document any new patterns discovered**
+- ✅ **Test is production-ready**
+- ✅ **Can move to next test case conversion**
+- ✅ **Update framework analyzer if needed**
+- ✅ **Document any new patterns discovered**
 
 **DO NOT proceed to next test case until current one passes!**
 
 ---
 
-**Now run, debug, and fix the modular test using flat test as ground truth!**
+**Now run, debug, and fix the modular test using flat test as ground truth!** 🐛🔧
 
