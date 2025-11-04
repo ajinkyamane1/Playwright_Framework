@@ -1,0 +1,60 @@
+# Ignore everything by default
+*
+
+# But allow .gitignore file itself
+!.gitignore
+
+# But allow .claude and .cursor directories
+!.claude/
+!.cursor/
+!.claude/**
+!.cursor/**
+
+# Standard useful ignores (for safety, though * should cover most)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test results
+src/reports/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Allow scripts directory and analyze_framework.py
+!scripts/
+!scripts/analyze_framework.py
