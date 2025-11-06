@@ -65,29 +65,39 @@ User will provide:
 
 ### STEP 2: ANALYZE FRAMEWORK CONTEXT
 
-**Run the framework analyzer:**
+**CRITICAL: Run the framework analyzer script to understand project structure:**
 
 ```bash
+cd Framework
 python3 scripts/analyze_framework.py
 ```
 
-**Document existing components:**
+**This script will automatically:**
+- Scan all page objects and their locators
+- List all page classes and their methods
+- Identify utilities and test data structure
+- Generate a comprehensive framework context report
+
+**If the script doesn't exist or fails, manually document:**
 
 1. **Existing Page Objects:**
-   - List all files in `/pageobjects`
+   - List all files in `/pageobjects` or `/src/pageobjects`
    - What locators already exist?
+   - **IMPORTANT:** Identify duplicate files (e.g., `LoginPage copy.ts`, `LoginPage copy 2.ts`)
 
 2. **Existing Page Classes:**
-   - List all files in `/pages`
+   - List all files in `/pages` or `/src/pages`
    - What methods already exist?
    - Which methods can be reused?
+   - **IMPORTANT:** Identify duplicate files (e.g., `ProductPage copy.ts`, `ProductPage copy 2.ts`)
 
 3. **Existing Utilities:**
-   - List all files in `/utils`
+   - List all files in `/utils` or `/src/utils`
    - What utility functions are available?
+   - Check for `testDataUtil.ts` and its methods
 
 4. **Existing Test Data:**
-   - Check `/testdata/testdata.json`
+   - Check `/testdata/testdata.json` or `/src/testdata/testdata.json`
    - What test case IDs already exist?
    - What is the data structure pattern?
 
@@ -95,6 +105,10 @@ python3 scripts/analyze_framework.py
    - Naming conventions
    - Method structure
    - Import patterns
+
+6. **Identify Cleanup Needed:**
+   - List all duplicate files found (files with "copy", "copy 2", etc.)
+   - These should be removed or consolidated before conversion
 
 ---
 
@@ -236,7 +250,65 @@ This applies to all related form inputs that are typically filled together.
 
 ---
 
-### STEP 7: OUTLINE MODULAR TEST FLOW
+### STEP 7: PLAN ASSERTION GROUPING BY INTENT
+
+**CRITICAL: Group assertions by feature/intent for better maintainability**
+
+**Pattern to Follow:**
+Instead of scattered individual assertions, club related assertions into intent-based verification methods.
+
+**Example - Product Verification:**
+```typescript
+// BAD: Scattered assertions in test file
+await expect(page.locator('text=ProductName')).toBeVisible();
+await expect(page.locator('text=1000')).toBeVisible();
+await expect(page.locator('text=Blue')).toBeVisible();
+await expect(page.locator('text=10 cm')).toBeVisible();
+
+// GOOD: Clubbed into intent-based method
+await productPage.verifyProductDetails(testData.product);
+```
+
+**In Page Class:**
+```typescript
+/**
+ * Verify all product details are displayed correctly
+ * Groups all product-related assertions together
+ * @param productData - Expected product data to verify
+ */
+async verifyProductDetails(productData: any): Promise<void> {
+  // Basic product info assertions
+  await expect(this.page.locator(`text=${productData.name}`)).toBeVisible();
+  await expect(this.page.locator(`text=${productData.mrp}`)).toBeVisible();
+  await expect(this.page.locator(`text=${productData.color}`)).toBeVisible();
+  
+  // Dimension assertions
+  await expect(this.page.locator(`text=${productData.dimensions.length} cm`)).toBeVisible();
+  await expect(this.page.locator(`text=${productData.dimensions.breadth} cm`)).toBeVisible();
+  await expect(this.page.locator(`text=${productData.dimensions.height} cm`)).toBeVisible();
+  
+  // Weight assertion
+  await expect(this.page.locator(`text=${productData.weight} grams`)).toBeVisible();
+}
+```
+
+**Identify Assertion Groups:**
+For each page, identify logical assertion groups:
+- **Login Verification:** Dashboard visible, user logged in, notification handling
+- **Product Creation Verification:** Product saved, SKU generated, success message
+- **Product Details Verification:** All product attributes displayed correctly
+- **Search Results Verification:** Product found, correct details in list
+- **Inventory Verification:** Stock updated, warehouse assigned
+
+**Benefits:**
+- Single method call instead of multiple assertions in test
+- Easier to maintain (change assertions in one place)
+- Better test readability
+- Reusable across multiple tests
+
+---
+
+### STEP 8: OUTLINE MODULAR TEST FLOW
 
 **Create a high-level outline of the modular test:**
 
@@ -285,7 +357,21 @@ Test Type: Product Management
 Pages Involved: LoginPage, ProductPage, InventoryPage
 ```
 
-### 2. Existing Components to Reuse
+### 2. Framework Cleanup Required (If Any)
+```
+DUPLICATE FILES FOUND:
+- src/pages/ProductPage copy.ts - DELETE
+- src/pages/ProductPage copy 2.ts - DELETE
+- src/pageobjects/LoginPage copy.locators.ts - DELETE
+
+KEEP ONLY:
+- src/pages/ProductPage.ts (main file)
+- src/pageobjects/LoginPage.locators.ts (main file)
+
+ACTION: Clean up duplicate files before conversion to avoid confusion
+```
+
+### 3. Existing Components to Reuse
 ```
 LoginPage.locators.ts - EXISTS
 LoginPage.ts - EXISTS
@@ -298,9 +384,10 @@ ProductPage.ts - NEEDS CREATION
 
 testDataUtil.ts - EXISTS
   - getTestData() - REUSE
+  - NOTE: Verify getTestData() method signature and usage pattern
 ```
 
-### 3. New Locators to Add
+### 4. New Locators to Add
 ```
 ProductPage.locators.ts (NEW FILE):
   - INVENTORY_MENU
@@ -311,7 +398,7 @@ ProductPage.locators.ts (NEW FILE):
   - [list all new locators...]
 ```
 
-### 4. New Methods to Create
+### 5. New Methods to Create
 ```
 ProductPage.ts (NEW FILE):
   1. openInventoryMenu()
@@ -326,7 +413,33 @@ ProductPage.ts (NEW FILE):
   [list all new methods with purpose...]
 ```
 
-### 5. Test Data Structure
+### 6. Assertion Groups Identified
+```
+LoginPage Assertion Group:
+  - verifyDashboardVisible()
+    • Dashboard link is visible
+    • User is logged in
+    • Page URL is correct
+
+ProductPage Assertion Groups:
+  - verifyProductCreated()
+    • Success message displayed
+    • SKU generated
+    • Redirect to correct page
+    
+  - verifyProductDetails(productData)
+    • Product name matches
+    • MRP matches
+    • All dimensions match
+    • Weight and color match
+    
+  - verifySearchResults(sku, productName)
+    • Product appears in search
+    • SKU is correct
+    • Product name is correct
+```
+
+### 8. Test Data Structure
 ```json
 {
   "TC01": {
@@ -338,13 +451,13 @@ ProductPage.ts (NEW FILE):
 }
 ```
 
-### 6. Modular Test Flow Outline
+### 9. Modular Test Flow Outline
 ```
 Login → Navigate → Fill Form → Create Product → Search → Verify
 (with detailed step breakdown)
 ```
 
-### 7. Potential Challenges & Notes
+### 10. Potential Challenges & Notes
 ```
 - SKU code is dynamically generated, need to capture it
 - Multiple dropdowns with complex selectors
@@ -352,7 +465,7 @@ Login → Navigate → Fill Form → Create Product → Search → Verify
 - Product details page has nested data to validate
 ```
 
-### 8. Recommendation
+### 11. Recommendation
 ```
 READY FOR CONVERSION
 Use @convert-to-modular.md command to proceed with implementation
