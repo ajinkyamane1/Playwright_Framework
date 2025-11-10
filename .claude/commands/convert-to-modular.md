@@ -39,6 +39,16 @@ From Phase 1 (analyze-and-plan):
    - Exception: Pre-condition safety checks (sparingly, e.g., element.toBeVisible() before click)
 8. **SEPARATE TEST DATA LOGIC FROM UI ACTIONS** - Test data generation in test files/utilities, not in page methods
 9. **USE COMPONENT OBJECT MODEL (COM)** - Create reusable components for elements used across multiple pages
+10. ⚠️ **CONSOLIDATE FILES - ONE FILE PER ENTITY/FEATURE** ⚠️
+    - **UNIVERSAL RULE:** If pages share the same base entity/feature, they belong in ONE file
+    - **DO NOT create separate files** for CRUD operations (Create, Read/Details, Update/Edit, Delete)
+    - **DO NOT create separate files** for page variations (List, View, Add, Modify, Remove)
+    - **CREATE ONLY ONE** consolidated file per entity with sections for all related pages
+    - **Examples of what to consolidate:**
+      - User operations → `UserPage.locators.ts` + `UserPage.ts` (NOT UserCreate, UserEdit, UserList separately)
+      - Order management → `OrderPage.locators.ts` + `OrderPage.ts` (NOT OrderCreate, OrderDetails, OrderEdit separately)
+      - Settings/Configuration → `SettingsPage.locators.ts` + `SettingsPage.ts` (NOT AccountSettings, ProfileSettings separately)
+      - Any entity with multiple screens → ONE file per entity (NOT one file per screen)
 </critical_rules>
 
 ---
@@ -307,40 +317,196 @@ export class [ComponentName] {
 
 **Location:** `/Framework/src/pageobjects/[PageName].locators.ts`
 
+**CRITICAL: CONSOLIDATE RELATED PAGES INTO SINGLE LOCATOR FILES**
+
+⚠️ **COMMON MISTAKE TO AVOID:**
+Do NOT create separate locator files for every variation of a page. This applies to ANY domain/application.
+
+**❌ WRONG Examples (Separate files for same entity):**
+- `CustomerCreatePage.locators.ts`, `CustomerEditPage.locators.ts`, `CustomerListPage.locators.ts`
+- `InvoiceDetailsPage.locators.ts`, `InvoiceGeneratePage.locators.ts`, `InvoiceHistoryPage.locators.ts`
+- `ReportViewPage.locators.ts`, `ReportCreatePage.locators.ts`, `ReportExportPage.locators.ts`
+- `DashboardMainPage.locators.ts`, `DashboardSettingsPage.locators.ts`, `DashboardWidgetsPage.locators.ts`
+
+**✅ CORRECT Examples (Consolidated files):**
+- `CustomerPage.locators.ts` (covers Create, Edit, List, Details)
+- `InvoicePage.locators.ts` (covers Generate, Details, History, Export)
+- `ReportPage.locators.ts` (covers View, Create, Export, Schedule)
+- `DashboardPage.locators.ts` (covers Main, Settings, Widgets, Analytics)
+
+**Universal Decision Framework for File Organization:**
+
+1. **Ask: Do these pages manage/interact with the SAME business entity/feature?**
+   - YES → Consolidate into ONE file
+   - NO → Keep separate files
+
+2. **Ask: Do the pages share a common URL path pattern?**
+   - YES (e.g., `/customer/*`, `/invoice/*`, `/reports/*`) → ONE file
+   - NO → Consider separate files
+
+3. **Ask: Are these variations of the same workflow (CRUD operations)?**
+   - YES (Create, Read, Update, Delete variations) → ONE file
+   - NO → Consider separate files
+
+4. **Ask: Do they represent different tabs/sections of the same feature?**
+   - YES (Settings tabs, Dashboard widgets, Profile sections) → ONE file
+   - NO → Consider separate files
+
+**Examples of Proper Consolidation (Multiple Domains):**
+
+```typescript
+// ✅ EXAMPLE 1: E-commerce - Customer Management
+/**
+ * Locators for all Customer-related pages
+ * Covers: Customer List, Customer Create, Customer Edit, Customer Details
+ */
+export class CustomerPageLocators {
+  // Section: Customer List
+  static readonly CUSTOMER_TABLE = 'table#customers';
+  static readonly ADD_CUSTOMER_BUTTON = 'button:has-text("Add Customer")';
+  static readonly SEARCH_CUSTOMER_INPUT = 'input[placeholder="Search customers"]';
+
+  // Section: Customer Create
+  static readonly CUSTOMER_NAME_INPUT = 'input[name="customer_name"]';
+  static readonly CUSTOMER_EMAIL_INPUT = 'input[name="email"]';
+  static readonly SAVE_CUSTOMER_BUTTON = 'button:has-text("Save Customer")';
+
+  // Section: Customer Details
+  static readonly CUSTOMER_PROFILE_HEADING = 'h1.customer-profile';
+  static readonly EDIT_CUSTOMER_BUTTON = 'button:has-text("Edit Customer")';
+  static readonly DELETE_CUSTOMER_BUTTON = 'button:has-text("Delete")';
+
+  // Section: Customer Edit
+  static readonly UPDATE_CUSTOMER_BUTTON = 'button:has-text("Update Customer")';
+  static readonly CANCEL_BUTTON = 'button:has-text("Cancel")';
+}
+```
+
+```typescript
+// ✅ EXAMPLE 2: Banking - Transaction Management
+/**
+ * Locators for all Transaction-related pages
+ * Covers: Transaction History, Transaction Details, Transfer Money, Schedule Transaction
+ */
+export class TransactionPageLocators {
+  // Section: Transaction History
+  static readonly TRANSACTION_HISTORY_TABLE = 'table.transaction-history';
+  static readonly FILTER_DROPDOWN = 'select#transaction-filter';
+  static readonly EXPORT_BUTTON = 'button:has-text("Export")';
+
+  // Section: Transaction Details
+  static readonly TRANSACTION_ID = 'span.transaction-id';
+  static readonly TRANSACTION_AMOUNT = 'span.amount';
+  static readonly DOWNLOAD_RECEIPT_BUTTON = 'button:has-text("Download Receipt")';
+
+  // Section: Transfer Money
+  static readonly RECIPIENT_ACCOUNT_INPUT = 'input[name="recipient_account"]';
+  static readonly TRANSFER_AMOUNT_INPUT = 'input[name="amount"]';
+  static readonly TRANSFER_BUTTON = 'button:has-text("Transfer")';
+
+  // Section: Schedule Transaction
+  static readonly SCHEDULE_DATE_PICKER = 'input[type="date"]';
+  static readonly RECURRING_CHECKBOX = 'input[type="checkbox"][name="recurring"]';
+  static readonly SCHEDULE_BUTTON = 'button:has-text("Schedule")';
+}
+```
+
+```typescript
+// ✅ EXAMPLE 3: Healthcare - Appointment Management
+/**
+ * Locators for all Appointment-related pages
+ * Covers: Appointment List, Book Appointment, Appointment Details, Reschedule
+ */
+export class AppointmentPageLocators {
+  // Section: Appointment List
+  static readonly APPOINTMENTS_TABLE = 'table.appointments';
+  static readonly BOOK_APPOINTMENT_BUTTON = 'button:has-text("Book Appointment")';
+  static readonly FILTER_BY_STATUS = 'select#status-filter';
+
+  // Section: Book Appointment
+  static readonly DOCTOR_DROPDOWN = 'select#doctor';
+  static readonly APPOINTMENT_DATE_PICKER = 'input[name="appointment_date"]';
+  static readonly TIME_SLOT_DROPDOWN = 'select#time-slot';
+  static readonly CONFIRM_BOOKING_BUTTON = 'button:has-text("Confirm Booking")';
+
+  // Section: Appointment Details
+  static readonly APPOINTMENT_INFO_CARD = 'div.appointment-details';
+  static readonly RESCHEDULE_BUTTON = 'button:has-text("Reschedule")';
+  static readonly CANCEL_APPOINTMENT_BUTTON = 'button:has-text("Cancel Appointment")';
+
+  // Section: Reschedule Appointment
+  static readonly NEW_DATE_PICKER = 'input[name="new_date"]';
+  static readonly NEW_TIME_SLOT = 'select#new-time-slot';
+  static readonly CONFIRM_RESCHEDULE_BUTTON = 'button:has-text("Confirm Reschedule")';
+}
+```
+
 **For each page object identified in the plan:**
 
-1. **If file EXISTS:**
+1. **FIRST: Check if related locator file EXISTS**
+   - Example: If creating `ProductDetailsPage`, check if `ProductPage.locators.ts` exists
+   - If YES → Add locators to EXISTING file under new section
+   - If NO → Create consolidated file with proper naming
+
+2. **If consolidated file EXISTS:**
    - Read the existing file
-   - Add ONLY new locators
+   - Add new section with descriptive comment
+   - Add ONLY new locators under that section
    - Follow existing naming pattern
    - Don't modify existing locators unless necessary
 
-2. **If file DOESN'T EXIST:**
-   - Create new file
+3. **If consolidated file DOESN'T EXIST:**
+   - Create new consolidated file (e.g., `ProductPage.locators.ts` not `ProductDetailsPage.locators.ts`)
    - Add all locators from the plan
+   - Organize into logical sections
    - Follow this template:
 
 ```typescript
 /**
- * Locators for [PageName] page
+ * Locators for [EntityName]-related pages
+ * Covers: [List all page variations covered]
  */
-export class [PageName]Locators {
-  // Section: [Section Name]
+export class [EntityName]PageLocators {
+  // Section: [Specific Page/Feature Name]
   static readonly LOCATOR_NAME = 'selector-here';
   static readonly ANOTHER_LOCATOR = 'selector-here';
-  
-  // Section: [Another Section]
+
+  // Section: [Another Page/Feature Name]
   static readonly MORE_LOCATORS = 'selector-here';
+  static readonly ADDITIONAL_LOCATOR = 'selector-here';
 }
 ```
 
 **Rules:**
-- UPPER_SNAKE_CASE naming
-- Descriptive names
+- **ONE locator file per entity/feature** (Product, Bundle, Inventory, etc.)
+- Use sections with clear comments to organize different page variations
+- UPPER_SNAKE_CASE naming for locators
+- Descriptive names that indicate which page/section they belong to
 - Group by sections with comments
 - **CRITICAL:** Use exact selectors from flat test (don't modify working locators)
 - **NEVER** include logic, actions, or test data in locator files
 - **NOTE:** If locator belongs to a reusable component, it should be in component locators, not page locators
+
+**Universal Naming Convention:**
+
+**✅ CORRECT - Entity-based naming:**
+- `[EntityName]Page.locators.ts` - Covers ALL operations for that entity
+- Examples:
+  - `UserPage.locators.ts` (covers all user operations)
+  - `OrderPage.locators.ts` (covers all order operations)
+  - `ReportPage.locators.ts` (covers all report operations)
+  - `AccountPage.locators.ts` (covers all account operations)
+  - `PaymentPage.locators.ts` (covers all payment operations)
+  - `SettingsPage.locators.ts` (covers all settings sections)
+
+**❌ WRONG - Operation-based naming (too granular):**
+- `[EntityName][Operation]Page.locators.ts` - Creates multiple files per entity
+- Examples to AVOID:
+  - ❌ `UserCreatePage.locators.ts`, `UserEditPage.locators.ts`, `UserListPage.locators.ts`
+  - ❌ `OrderDetailsPage.locators.ts`, `OrderCreatePage.locators.ts`
+  - ❌ `ReportViewPage.locators.ts`, `ReportGeneratePage.locators.ts`
+  - ❌ `AccountSettingsPage.locators.ts`, `ProfileSettingsPage.locators.ts`
+  - ❌ `PaymentProcessPage.locators.ts`, `PaymentHistoryPage.locators.ts`
 </step_3_create_page_objects>
 
 ---
@@ -350,43 +516,314 @@ export class [PageName]Locators {
 
 **Location:** `/Framework/src/pages/[PageName].ts`
 
+**CRITICAL: MATCH PAGE CLASS FILES WITH CONSOLIDATED LOCATOR FILES**
+
+⚠️ **CONSISTENCY RULE:**
+- If you have `ProductPage.locators.ts`, you MUST have `ProductPage.ts` (NOT separate ProductDetailsPage.ts, ProductCreationPage.ts)
+- Page class file names MUST match their corresponding locator file names
+- One consolidated page class per entity/feature
+
+**Examples Across Different Domains:**
+
+```
+✅ CORRECT Structure (E-commerce):
+/pageobjects/
+  - CustomerPage.locators.ts
+  - OrderPage.locators.ts
+/pages/
+  - CustomerPage.ts (uses CustomerPage.locators.ts)
+  - OrderPage.ts (uses OrderPage.locators.ts)
+
+❌ WRONG Structure (E-commerce):
+/pageobjects/
+  - CustomerPage.locators.ts
+/pages/
+  - CustomerCreatePage.ts
+  - CustomerEditPage.ts
+  - CustomerListPage.ts
+
+✅ CORRECT Structure (Banking):
+/pageobjects/
+  - AccountPage.locators.ts
+  - TransactionPage.locators.ts
+/pages/
+  - AccountPage.ts (uses AccountPage.locators.ts)
+  - TransactionPage.ts (uses TransactionPage.locators.ts)
+
+❌ WRONG Structure (Banking):
+/pageobjects/
+  - TransactionPage.locators.ts
+/pages/
+  - TransactionHistoryPage.ts
+  - TransferMoneyPage.ts
+  - ScheduleTransactionPage.ts
+
+✅ CORRECT Structure (Healthcare):
+/pageobjects/
+  - AppointmentPage.locators.ts
+  - PatientPage.locators.ts
+/pages/
+  - AppointmentPage.ts (uses AppointmentPage.locators.ts)
+  - PatientPage.ts (uses PatientPage.locators.ts)
+
+❌ WRONG Structure (Healthcare):
+/pageobjects/
+  - AppointmentPage.locators.ts
+/pages/
+  - BookAppointmentPage.ts
+  - AppointmentDetailsPage.ts
+  - RescheduleAppointmentPage.ts
+```
+
 **For each page class identified in the plan:**
 
-1. **If file EXISTS:**
+1. **FIRST: Check if consolidated page class EXISTS**
+   - Example: If plan mentions `ProductDetailsPage`, check if `ProductPage.ts` exists
+   - Match the naming with your consolidated locator file
+   - If YES → Add methods to EXISTING file
+   - If NO → Create consolidated file with proper naming
+
+2. **If consolidated file EXISTS:**
    - Read the existing file
    - Add ONLY new methods from the plan
    - DON'T duplicate existing methods
    - Follow existing patterns
+   - Group related methods with comments
 
-2. **If file DOESN'T EXIST:**
-   - Create new file
+3. **If consolidated file DOESN'T EXIST:**
+   - Create new consolidated file (e.g., `ProductPage.ts` not `ProductDetailsPage.ts`)
    - Add all methods from the plan
+   - Organize methods by page sections (Creation, Details, Edit, etc.)
    - Follow this template:
 
 ```typescript
 import { Page } from '@playwright/test';
-import { [PageName]Locators } from '../pageobjects/[PageName].locators';
+import { [EntityName]PageLocators } from '../pageobjects/[EntityName]Page.locators';
 import { [ComponentName] } from '../components/[ComponentName]'; // If using components
 
 /**
- * [PageName] page object class
- * Handles all interactions with [PageName] page
+ * [EntityName]Page page object class
+ * Handles all interactions with [EntityName]-related pages
+ * Covers: [List all page variations - Creation, Details, Edit, etc.]
  */
-export class [PageName] {
+export class [EntityName]Page {
   private [componentName]: [ComponentName]; // If using components
-  
+
   constructor(private page: Page) {
     this.[componentName] = new [ComponentName](page); // Initialize component
   }
-  
+
+  // ==================== [Specific Page Section - e.g., Creation] ====================
+
   /**
    * [Description of what method does and why]
    * @param paramName - Description of parameter
    * @returns Description of return value
    */
   async methodName(paramName: string): Promise<void> {
-    // Implementation using locators from pageobjects
-    await this.page.fill([PageName]Locators.LOCATOR_NAME, paramName);
+    // Implementation using locators from consolidated locator file
+    await this.page.fill([EntityName]PageLocators.LOCATOR_NAME, paramName);
+  }
+
+  // ==================== [Another Page Section - e.g., Details] ====================
+
+  /**
+   * [Description of another method]
+   * @returns Description of return value
+   */
+  async anotherMethod(): Promise<void> {
+    // Implementation
+    await this.page.click([EntityName]PageLocators.ANOTHER_LOCATOR);
+  }
+
+  // ==================== [Another Page Section - e.g., Edit] ====================
+
+  /**
+   * [Description of edit method]
+   * @param paramName - Description of parameter
+   */
+  async editMethod(paramName: string): Promise<void> {
+    // Implementation
+    await this.page.fill([EntityName]PageLocators.EDIT_LOCATOR, paramName);
+  }
+}
+```
+
+**Example 1 - Consolidated CustomerPage.ts (E-commerce):**
+```typescript
+import { Page } from '@playwright/test';
+import { CustomerPageLocators } from '../pageobjects/CustomerPage.locators';
+import { NavigationComponent } from '../components/NavigationComponent';
+
+/**
+ * CustomerPage page object class
+ * Handles all interactions with Customer-related pages
+ * Covers: Customer List, Customer Create, Customer Edit, Customer Details
+ */
+export class CustomerPage {
+  private navigation: NavigationComponent;
+
+  constructor(private page: Page) {
+    this.navigation = new NavigationComponent(page);
+  }
+
+  // ==================== Customer List ====================
+
+  /**
+   * Search for customer by name
+   * @param customerName - Customer name to search
+   */
+  async searchCustomer(customerName: string): Promise<void> {
+    await this.page.fill(CustomerPageLocators.SEARCH_CUSTOMER_INPUT, customerName);
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  /**
+   * Click Add Customer button to navigate to create page
+   */
+  async navigateToCreateCustomer(): Promise<void> {
+    await this.page.click(CustomerPageLocators.ADD_CUSTOMER_BUTTON);
+  }
+
+  // ==================== Customer Create ====================
+
+  /**
+   * Fill customer registration details
+   * @param name - Customer name
+   * @param email - Customer email address
+   */
+  async fillCustomerDetails(name: string, email: string): Promise<void> {
+    await this.page.fill(CustomerPageLocators.CUSTOMER_NAME_INPUT, name);
+    await this.page.fill(CustomerPageLocators.CUSTOMER_EMAIL_INPUT, email);
+  }
+
+  /**
+   * Save new customer
+   */
+  async saveCustomer(): Promise<void> {
+    await this.page.click(CustomerPageLocators.SAVE_CUSTOMER_BUTTON);
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  // ==================== Customer Details ====================
+
+  /**
+   * Get customer profile heading text
+   * @returns Customer profile heading
+   */
+  async getCustomerProfileHeading(): Promise<string> {
+    return await this.page.textContent(CustomerPageLocators.CUSTOMER_PROFILE_HEADING) || '';
+  }
+
+  /**
+   * Click Edit button to modify customer details
+   */
+  async navigateToEditCustomer(): Promise<void> {
+    await this.page.click(CustomerPageLocators.EDIT_CUSTOMER_BUTTON);
+  }
+
+  /**
+   * Delete customer
+   */
+  async deleteCustomer(): Promise<void> {
+    await this.page.click(CustomerPageLocators.DELETE_CUSTOMER_BUTTON);
+  }
+
+  // ==================== Customer Edit ====================
+
+  /**
+   * Update customer information and save
+   */
+  async updateCustomer(): Promise<void> {
+    await this.page.click(CustomerPageLocators.UPDATE_CUSTOMER_BUTTON);
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  /**
+   * Cancel customer edit operation
+   */
+  async cancelEdit(): Promise<void> {
+    await this.page.click(CustomerPageLocators.CANCEL_BUTTON);
+  }
+}
+```
+
+**Example 2 - Consolidated TransactionPage.ts (Banking):**
+```typescript
+import { Page } from '@playwright/test';
+import { TransactionPageLocators } from '../pageobjects/TransactionPage.locators';
+
+/**
+ * TransactionPage page object class
+ * Handles all interactions with Transaction-related pages
+ * Covers: Transaction History, Transaction Details, Transfer Money, Schedule Transaction
+ */
+export class TransactionPage {
+  constructor(private page: Page) {}
+
+  // ==================== Transaction History ====================
+
+  /**
+   * Filter transactions by type
+   * @param filterType - Transaction filter type (All, Debit, Credit, etc.)
+   */
+  async filterTransactions(filterType: string): Promise<void> {
+    await this.page.selectOption(TransactionPageLocators.FILTER_DROPDOWN, filterType);
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  /**
+   * Export transaction history
+   */
+  async exportTransactions(): Promise<void> {
+    await this.page.click(TransactionPageLocators.EXPORT_BUTTON);
+  }
+
+  // ==================== Transaction Details ====================
+
+  /**
+   * Get transaction ID
+   * @returns Transaction ID string
+   */
+  async getTransactionId(): Promise<string> {
+    return await this.page.textContent(TransactionPageLocators.TRANSACTION_ID) || '';
+  }
+
+  /**
+   * Download transaction receipt
+   */
+  async downloadReceipt(): Promise<void> {
+    await this.page.click(TransactionPageLocators.DOWNLOAD_RECEIPT_BUTTON);
+  }
+
+  // ==================== Transfer Money ====================
+
+  /**
+   * Fill transfer details and submit
+   * @param recipientAccount - Recipient account number
+   * @param amount - Transfer amount
+   */
+  async transferMoney(recipientAccount: string, amount: string): Promise<void> {
+    await this.page.fill(TransactionPageLocators.RECIPIENT_ACCOUNT_INPUT, recipientAccount);
+    await this.page.fill(TransactionPageLocators.TRANSFER_AMOUNT_INPUT, amount);
+    await this.page.click(TransactionPageLocators.TRANSFER_BUTTON);
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  // ==================== Schedule Transaction ====================
+
+  /**
+   * Schedule a recurring transaction
+   * @param date - Transaction date
+   * @param isRecurring - Whether transaction is recurring
+   */
+  async scheduleTransaction(date: string, isRecurring: boolean): Promise<void> {
+    await this.page.fill(TransactionPageLocators.SCHEDULE_DATE_PICKER, date);
+    if (isRecurring) {
+      await this.page.check(TransactionPageLocators.RECURRING_CHECKBOX);
+    }
+    await this.page.click(TransactionPageLocators.SCHEDULE_BUTTON);
+    await this.page.waitForLoadState('networkidle');
   }
 }
 ```
@@ -720,49 +1157,120 @@ process.env.BASE_URL
 After implementation, provide:
 
 ### 1. Created/Updated Files List
+
+**IMPORTANT: Universal File Consolidation Approach**
+- Use ONE locator file per entity/feature (e.g., `[EntityName]Page.locators.ts` for all entity-related pages)
+- Use ONE page class per entity/feature (e.g., `[EntityName]Page.ts` for all entity operations)
+- DO NOT create separate files for CRUD operations or page variations (Creation, Details, Edit, List, etc.)
+
 ```
 CREATED:
-- Framework/src/components/HeaderComponent.locators.ts (if reusable)
-- Framework/src/components/HeaderComponent.ts (if reusable)
-- Framework/src/pageobjects/ProductPage.locators.ts
-- Framework/src/pages/ProductPage.ts
-- Framework/src/tests/tc01-product-management.spec.ts
-- Framework/src/utils/dataGenerator.ts (if needed for dynamic data)
+- Framework/src/components/[SharedComponent].locators.ts (if reusable across multiple pages)
+- Framework/src/components/[SharedComponent].ts (if reusable across multiple pages)
+- Framework/src/pageobjects/[EntityName]Page.locators.ts (consolidated - ALL entity-related pages)
+- Framework/src/pages/[EntityName]Page.ts (consolidated - ALL entity operations)
+- Framework/src/tests/tc[id]-[description].spec.ts
+- Framework/src/utils/dataGenerator.ts (if needed for dynamic data generation)
 
 UPDATED:
-- Framework/src/testdata/testdata.json (added TC01)
-- Framework/src/pageobjects/LoginPage.locators.ts (added 2 new locators)
+- Framework/src/testdata/testdata.json (added TC[ID])
+- Framework/src/pageobjects/[EntityName]Page.locators.ts (added locators for new sections - if file existed)
 
 REUSED:
-- Framework/src/pages/LoginPage.ts (loginWithCredentials)
-- Framework/src/components/HeaderComponent.ts (if exists)
-- Framework/src/utils/testDataUtil.ts (getTestData)
+- Framework/src/pages/LoginPage.ts (existing authentication methods)
+- Framework/src/components/[ExistingComponent].ts (if applicable)
+- Framework/src/utils/testDataUtil.ts (getTestData function)
+
+❌ WRONG - DO NOT CREATE (These patterns indicate incorrect file organization):
+- Framework/src/pageobjects/[EntityName]CreatePage.locators.ts
+- Framework/src/pageobjects/[EntityName]DetailsPage.locators.ts
+- Framework/src/pageobjects/[EntityName]EditPage.locators.ts
+- Framework/src/pageobjects/[EntityName]ListPage.locators.ts
+- Framework/src/pages/[EntityName]CreatePage.ts
+- Framework/src/pages/[EntityName]DetailsPage.ts
+- Framework/src/pages/[EntityName]EditPage.ts
+- Framework/src/pages/[EntityName]ListPage.ts
+
+**Concrete Examples:**
+
+✅ CORRECT:
+- CustomerPage.locators.ts + CustomerPage.ts
+- OrderPage.locators.ts + OrderPage.ts
+- TransactionPage.locators.ts + TransactionPage.ts
+- AppointmentPage.locators.ts + AppointmentPage.ts
+
+❌ WRONG:
+- CustomerCreatePage.locators.ts, CustomerEditPage.locators.ts, CustomerListPage.locators.ts
+- OrderDetailsPage.locators.ts, OrderCreatePage.locators.ts
+- TransactionHistoryPage.locators.ts, TransferMoneyPage.locators.ts
+- BookAppointmentPage.locators.ts, RescheduleAppointmentPage.locators.ts
 ```
 
 ### 2. Summary of Changes
+
+**CONSOLIDATED APPROACH - Single file per entity/feature**
+
+**Template Format (Replace [EntityName] with your actual entity):**
+
 ```
 Components (COM Pattern):
-- HeaderComponent.locators.ts: 5 locators defined (reusable)
-- HeaderComponent.ts: 3 methods created (reusable)
+- [SharedComponent].locators.ts: X locators defined (reusable across multiple pages)
+- [SharedComponent].ts: Y methods created (reusable across multiple pages)
 
-Page Objects:
-- ProductPage.locators.ts: 25 locators defined
-- LoginPage.locators.ts: Added 2 new locators (CLOSE_NOTIFICATION, INVENTORY_LINK)
+Page Objects (Consolidated - ONE file per entity):
+- [EntityName]Page.locators.ts: X locators defined
+  ├── Section: [Operation 1] (X locators) - e.g., Customer Create
+  ├── Section: [Operation 2] (X locators) - e.g., Customer Details
+  ├── Section: [Operation 3] (X locators) - e.g., Customer Edit
+  └── Section: [Operation 4] (X locators) - e.g., Customer List
+- [ExistingPage].locators.ts: Added X new locators (if updated existing file)
 
-Page Classes:
-- ProductPage.ts: 13 methods created
-- LoginPage.ts: Reused 1 existing method
+Page Classes (Consolidated - ONE file per entity):
+- [EntityName]Page.ts: X methods created
+  ├── [Operation 1] methods (X methods) - e.g., Customer creation operations
+  ├── [Operation 2] methods (X methods) - e.g., Customer details viewing
+  ├── [Operation 3] methods (X methods) - e.g., Customer update operations
+  └── [Operation 4] methods (X methods) - e.g., Customer list/search operations
+- [ExistingPage].ts: Reused X existing methods
 
 Test Data:
-- Added TC01 entry with product data
+- Added TC[ID] entry with [entity] data
 
 Test File:
-- tc01-product-management.spec.ts created
-- 4 test steps with clear flow
+- tc[id]-[description].spec.ts created
+- X test steps with clear flow
 - All assertions in test file (intent-wise grouping)
+- Uses consolidated [EntityName]Page class
 
 Utilities:
-- dataGenerator.ts: Added generateProductName() for dynamic data
+- dataGenerator.ts: Added generate[EntityName]() for dynamic data (if needed)
+
+File Organization:
+✅ Single [EntityName]Page.locators.ts (NOT separate [EntityName]CreatePage, [EntityName]DetailsPage, etc.)
+✅ Single [EntityName]Page.ts class (NOT separate page classes for each operation)
+✅ Methods organized by sections with clear comment separators
+✅ Locators organized by page sections with descriptive comments
+```
+
+**Example - Customer Management:**
+```
+Page Objects (Consolidated):
+- CustomerPage.locators.ts: 20 locators defined
+  ├── Section: Customer List (5 locators)
+  ├── Section: Customer Create (6 locators)
+  ├── Section: Customer Details (4 locators)
+  └── Section: Customer Edit (5 locators)
+
+Page Classes (Consolidated):
+- CustomerPage.ts: 10 methods created
+  ├── Customer List methods (2 methods)
+  ├── Customer Create methods (3 methods)
+  ├── Customer Details methods (2 methods)
+  └── Customer Edit methods (3 methods)
+
+File Organization:
+✅ Single CustomerPage.locators.ts (NOT CustomerCreatePage, CustomerEditPage, CustomerListPage)
+✅ Single CustomerPage.ts class (NOT separate page classes)
 ```
 
 ### 3. Code Quality Confirmation
@@ -789,16 +1297,27 @@ Utilities:
 
 Before submitting, verify:
 
+**File Organization:**
+- [ ] **ONE locator file per entity/feature** (e.g., ProductPage.locators.ts, NOT ProductCreationPage.locators.ts + ProductDetailsPage.locators.ts)
+- [ ] **ONE page class per entity/feature** (e.g., ProductPage.ts, NOT separate ProductCreationPage.ts, ProductDetailsPage.ts)
+- [ ] Locator files and page class files have MATCHING names
+- [ ] Related page variations organized into sections within single file
+- [ ] NO duplicate files created for same entity/feature
+
+**Code Quality:**
 - [ ] All files from plan created/updated
 - [ ] NO code duplication (checked existing components and pages)
 - [ ] Components created for reusable elements (COM pattern)
-- [ ] ALL locators are in /pageobjects or /components folders
+- [ ] ALL locators are in /pageobjects or /components folders (separated from page classes)
 - [ ] ALL page/component methods have JSDoc comments
 - [ ] NO hardcoded values (all in testdata.json or generated in test files)
 - [ ] Test data generation in test files/utilities (NOT in page methods)
 - [ ] TestCaseID is used for data lookup
 - [ ] Credentials use environment variables
+
+**Best Practices:**
 - [ ] Method names are intent-driven and descriptive
+- [ ] Methods organized by sections with clear comment separators
 - [ ] Tests are clean and minimal
 - [ ] Assertions are in test files (intent-wise grouping)
 - [ ] Page methods do NOT contain assertions (except pre-condition safety checks)
